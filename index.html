@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Copilot Said It — Would You Sign Your Name to It?</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--text:#1f2937;--muted:#6b7280;--border:#d1d5db;--blue:#2563eb;--green:#15803d;--red:#b91c1c;--amber:#b45309}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:1120px;margin:auto;padding:32px 20px 48px}
+header{text-align:center;margin-bottom:24px}
+h1{margin:0;font-size:2.05rem;line-height:1.15}
+.subtitle{margin-top:8px;font-size:1.2rem;font-weight:700}
+.intro{max-width:870px;margin:14px auto 0;color:var(--muted);line-height:1.5}
+.pool-note{display:inline-block;margin-top:12px;padding:8px 12px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;font-size:.93rem;font-weight:700;color:#3730a3}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.08)}
+.main{padding:26px}
+.side{padding:20px;position:sticky;top:20px}
+.progress{display:flex;justify-content:space-between;color:var(--muted);font-weight:700}
+.bar{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin:12px 0 22px}
+.bar span{display:block;height:100%;background:var(--blue);width:0;transition:width .25s}
+.label{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#1d4ed8;margin-bottom:7px}
+h2{margin:0 0 12px;font-size:1.5rem}
+.scenario,.promptbox,.responsebox{padding:16px 18px;border-radius:14px;margin:12px 0 18px;line-height:1.5}
+.scenario{background:#f9fafb;border-left:5px solid #64748b}
+.promptbox{background:#eff6ff;border:1px solid #bfdbfe}
+.responsebox{background:#faf5ff;border:1px solid #ddd6fe}
+.boxtitle{font-weight:800;margin-bottom:7px}
+.question{margin:22px 0 12px;font-size:1.22rem;font-weight:800}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{font:inherit}
+.choice{border:0;border-radius:14px;padding:16px 18px;font-size:1.08rem;font-weight:800;cursor:pointer}
+.choice:hover:not(:disabled),.check:hover,.next:hover,.restart:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(0,0,0,.13)}
+.sign{background:var(--green);color:#fff}
+.dont{background:var(--red);color:#fff}
+button:disabled{opacity:.55;cursor:not-allowed}
+.facts{margin-top:20px;padding:18px;border:1px solid #f59e0b;background:#fffbeb;border-radius:16px}
+.facts h3{margin:0 0 7px}
+.facts p{margin:0 0 14px;line-height:1.45}
+.factsgrid{display:grid;gap:10px}
+.factopt{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:12px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer}
+.factopt input{width:20px;height:20px;margin-top:2px}
+.letter{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:#111827;color:#fff;font-weight:900;margin-right:8px}
+.fname{font-weight:800}
+.fdesc{color:var(--muted);font-size:.94rem;margin-top:3px;line-height:1.35}
+.check{margin-top:14px;width:100%;border:0;border-radius:12px;background:var(--amber);color:#fff;padding:13px 16px;font-weight:800;cursor:pointer}
+.feedback{margin-top:18px;border-radius:14px;padding:18px;line-height:1.48;border:1px solid var(--border)}
+.feedback.good{background:#f0fdf4;border-color:#bbf7d0}
+.feedback.bad{background:#fef2f2;border-color:#fecaca}
+.feedback h3{margin:0 0 8px}
+.feedback ul{margin:8px 0 0 20px;padding:0}
+.points-earned{display:inline-block;background:#ecfdf5;border:1px solid #86efac;border-radius:10px;padding:8px 10px;margin:4px 0 10px}
+.reflection-detail{margin-top:14px;padding:14px 16px;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+.missed{background:#fff7ed;border-left:4px solid #f97316;padding:10px 12px;border-radius:8px}
+.allfound{background:#f0fdf4;border-left:4px solid #16a34a;padding:10px 12px;border-radius:8px}
+.source{margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,0,0,.1);color:#4b5563;font-size:.94rem}
+.better{margin-top:12px;background:#fff;border:1px dashed #9ca3af;border-radius:10px;padding:12px 14px}
+.nextrow{display:flex;justify-content:flex-end;margin-top:18px}
+.next{border:0;border-radius:12px;background:var(--blue);color:#fff;padding:13px 20px;font-weight:800;cursor:pointer}
+.hidden{display:none!important}
+.side h3{margin:0 0 12px}
+.key{display:grid;gap:10px}
+.keyitem{border:1px solid #e5e7eb;border-radius:11px;padding:11px;background:#fafafa}
+.keyhead{display:flex;align-items:center;font-weight:800;margin-bottom:4px}
+.keyitem p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.35}
+.rule,.scorebox{margin-top:16px;padding:12px;border-radius:12px;line-height:1.42;font-size:.93rem}
+.rule{background:#eef2ff}
+.scorebox{background:#f9fafb;border:1px solid var(--border)}
+.complete{padding:24px;text-align:center}
+.big{font-size:2.4rem;font-weight:900;color:var(--blue);margin:8px 0}
+.restart{border:0;border-radius:12px;padding:13px 18px;background:#e5e7eb;color:#111827;font-weight:800;cursor:pointer;margin-top:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side{position:static}}
+@media(max-width:560px){.choices{grid-template-columns:1fr}.app{padding:18px 12px 32px}.main{padding:18px}h1{font-size:1.7rem}}
+
+.copilotrefs{margin-top:14px;padding-top:12px;border-top:1px solid #ddd6fe}
+.copilotrefs-title{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#6d28d9;margin-bottom:7px}
+.refchip{display:inline-block;margin:3px 6px 3px 0;padding:6px 9px;background:#fff;border:1px solid #c4b5fd;border-radius:999px;font-size:.86rem;color:#4c1d95}
+.noref{margin-top:14px;padding-top:12px;border-top:1px solid #ddd6fe;color:#6b7280;font-size:.88rem;font-style:italic}
+
+
+.summarycard{margin:18px 0;text-align:left;background:#f9fafb;border:1px solid #d1d5db;border-radius:14px;padding:16px 18px}
+.summarycard h3{margin:0 0 10px}
+.summarysection{margin-top:14px;padding:13px 15px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;line-height:1.45}
+.summarysection strong{display:block;margin-bottom:5px}
+.summarynote{margin-top:14px;padding:13px 15px;background:#eef2ff;border-left:4px solid #6366f1;border-radius:8px;line-height:1.45}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>Copilot Said It — Would You Sign Your Name to It?</h1>
+  <div class="subtitle">A FACTS Reflection for Out-of-Scope Leaders</div>
+  <p class="intro">Copilot can sound clear, professional and completely confident. It may also cite a policy, collective agreement, procedure, or other source. Neither confidence nor a citation guarantees that the conclusion is correct. For each case, decide whether you would be prepared to put your name behind Copilot's response.</p>
+</header>
+
+<div class="layout">
+<main class="card main">
+  <div id="game">
+    <div class="progress"><span id="round"></span><span></span></div>
+    <div class="bar"><span id="fill"></span></div>
+
+    <div class="label" id="label"></div>
+    <h2 id="title"></h2>
+
+    <div class="scenario"><div class="boxtitle">Scenario</div><div id="scenario"></div></div>
+    <div class="promptbox"><div class="boxtitle">Prompt to Copilot</div><div id="promptText"></div></div>
+    <div class="responsebox"><div class="boxtitle">Copilot response</div><div id="response"></div><div id="responseRefs"></div></div>
+
+    <div class="question">Would you sign your name to this response?</div>
+    <div class="choices">
+      <button id="sign" class="choice sign" onclick="choose('sign')">Sign It</button>
+      <button id="dont" class="choice dont" onclick="choose('dont')">Don't Sign</button>
+    </div>
+
+    <section id="facts" class="facts hidden">
+      <h3>What bothered you about the response?</h3>
+      <p>Select the FACTS elements that <strong>most influenced your decision not to sign</strong>. There is no need to find every possible issue. You earn one point for each primary concern you identify.</p>
+      <div id="factsgrid" class="factsgrid"></div>
+      <button class="check" onclick="checkFacts()">See What You Noticed</button>
+    </section>
+
+    <section id="feedback" class="feedback hidden"></section>
+    <div class="nextrow"><button id="next" class="next hidden" onclick="nextCase()">Next Case</button></div>
+  </div>
+
+  <section id="complete" class="complete hidden">
+    <h2>Activity Complete</h2>
+    <div id="performanceSummary"></div>
+    <p><strong>Takeaway:</strong> Confidence is a writing style, not evidence. Use Copilot to improve preparation, analysis and communication — not to transfer authority or accountability.</p>
+  </section>
+</main>
+
+<aside class="card side">
+  <h3>The FACTS Reflection</h3>
+  <div id="key" class="key"></div>
+  <div class="rule"><strong>Rule of thumb:</strong><br>The higher the consequence of the decision, the higher the verification burden. A citation is useful only if the source is authoritative, current, relevant, and actually supports the conclusion.</div>
+</aside>
+</div>
+</div>
+
+<script>
+const scenarioBank = [{"id": "S01", "decision": "sign", "facts": [], "label": "Strategic decision preparation", "title": "The declining enrolment trend", "scenario": "An Associate Dean has a three-year enrolment table showing a steady decline in one program. No other program-performance information has been provided.", "prompt": "Based on these numbers, should we suspend the program?", "response": "The supplied data show a sustained decline in enrolment, but enrolment alone is not enough to determine whether the program should be suspended. The data do not establish why enrolment declined or what the broader consequences of suspension would be. Before making a recommendation, examine application, offer and conversion trends; retention and completion; labour-market demand; program costs; learner impact; strategic fit; and whether the decline is program-specific or part of a broader trend. I can help organize that evidence and compare options, but the material provided does not support a suspension decision on its own.", "why": ["Copilot stays within the evidence instead of inventing a cause for the enrolment decline.", "It identifies what the data do and do not establish.", "It names additional evidence that would reasonably be needed before a consequential recommendation.", "It keeps the decision with the accountable leaders."], "source": "Useful sources to add next: program-review information, current institutional priorities, labour-market evidence, learner data, financial information, and the applicable academic planning process.", "better": "This is a strong use of Copilot: organize evidence, expose gaps, compare options, and leave the consequential decision with the human leader.", "sourceRefs": ["Uploaded three-year enrolment data", "Saskatchewan Polytechnic Multi-Year Business Plan 2026–2029"]}, {"id": "S02", "decision": "sign", "facts": [], "label": "Collective agreements", "title": "Comparing probation provisions", "scenario": "An Academic Chair supervises employees from more than one bargaining unit. They attach the relevant probation articles from the Academic and Professional Services agreements.", "prompt": "Using only the attached excerpts, compare the probation requirements. Cite the article numbers, identify meaningful differences, and flag anything the excerpts do not establish. Do not tell me what employment action to take.", "response": "Using the attached provisions, the two agreements differ in probation length, assessment timing, documentation, and process. The Professional Services agreement sets out its minimum evaluation process in Article 6, while the Academic agreement contains its own probation requirements. I should not determine which agreement applies to a specific employee unless you identify the employee's bargaining unit, and I should not recommend an employment outcome from these excerpts alone. Before relying on the comparison, verify the cited provisions against the current agreements and any applicable Letters of Understanding.", "why": ["The task is bounded to named source material.", "Copilot identifies a critical missing fact instead of guessing which agreement applies.", "It recommends verifying the current governing documents and any modifying LOUs.", "It does not convert the comparison into an employment decision."], "source": "Trusted sources: the current Academic and Professional Services collective agreements and any applicable Letters of Understanding.", "better": "For policy and CBA work, constrain Copilot to named sources, require article references, ask it to identify gaps, and reserve interpretation and action for the appropriate humans.", "sourceRefs": ["Academic Collective Bargaining Agreement — probation provisions", "Professional Services Collective Bargaining Agreement — Article 6 (Probation)"]}, {"id": "S03", "decision": "sign", "facts": [], "label": "People leadership", "title": "Preparing for a coaching conversation", "scenario": "A Program Head reports that an employee has missed an internal process several times. The Academic Chair wants to prepare for a discussion with the Program Head before deciding what, if anything, should happen next.", "prompt": "Using only these de-identified facts, give me questions to ask the Program Head that separate observation from interpretation and help me understand expectations, prior coaching, employee explanations, impact, and what has already been tried. Do not recommend discipline.", "response": "Start by clarifying the observable events: What specifically was expected, when, and what happened instead? Then ask: How was the expectation communicated? What has the employee said about the misses? What support or coaching has already occurred? What impact has the issue had? Is there a pattern across comparable situations or only these incidents? What options does the Program Head see, and what do they recommend as the next step? Before moving toward a formal process, confirm any relevant HR or collective-agreement requirements.", "why": ["Copilot helps the leader gather better information instead of deciding the outcome.", "It separates observable facts from interpretation.", "It supports the Program Head's ownership by asking for their analysis and recommendation.", "It flags that formal process requirements may need confirmation."], "source": "Useful sources if the matter becomes formal: the applicable collective agreement, HR processes, Saskatchewan Polytechnic Code of Conduct, and relevant performance expectations.", "better": "Use Copilot to improve the questions you ask before deciding, not to jump from a reported problem to a management conclusion.", "sourceRefs": ["Saskatchewan Polytechnic People Strategy 2025–2030", "Saskatchewan Polytechnic Code of Conduct — Policy #703"]}, {"id": "S04", "decision": "sign", "facts": [], "label": "Data synthesis", "title": "Anonymous learner feedback", "scenario": "A faculty area has received a large set of anonymous learner comments from several programs. The Associate Dean wants to understand themes without identifying individuals.", "prompt": "Group these comments into recurring themes, distinguish positive and negative themes, count how often each theme appears, and give representative paraphrases rather than verbatim quotes. Flag any theme supported by only a few comments.", "response": "I can summarize the comments into recurring themes, report approximate frequency, and paraphrase examples to reduce the risk of identifying a respondent. I will flag low-frequency themes separately so they are not presented as representative of the whole group. I will not infer respondent identities or motives from the comments.", "why": ["The task is analysis rather than a consequential decision.", "The response reduces re-identification risk by paraphrasing rather than reproducing distinctive comments.", "It distinguishes low-frequency observations from broader patterns.", "It avoids inferring identities or motives."], "source": "Use the institution's approved Copilot environment and applicable privacy/data-handling requirements for the source material.", "better": "Ask Copilot to preserve uncertainty and distinguish broad patterns from isolated comments.", "sourceRefs": []}, {"id": "S05", "decision": "sign", "facts": [], "label": "Change communication", "title": "Explaining a difficult operational change", "scenario": "An Associate Dean has already made an authorized operational decision and needs to explain it clearly to affected employees.", "prompt": "Rewrite my draft announcement using this structure: what is changing, what we considered, what we are trying to achieve, why this direction makes sense, and what happens next. Do not add reasons or commitments that are not in my draft.", "response": "I can reorganize the existing content into that reasoning structure while preserving the facts and commitments already present. Where the draft does not provide a rationale or next step, I will mark the gap rather than inventing one.", "why": ["The management decision has already been made by the authorized human.", "Copilot is being used to improve communication, not to create the decision.", "The instruction explicitly prevents invented rationale or commitments.", "The response promises to mark missing information rather than fill it in."], "source": "Verify the final message against the actual decision, any approved change plan, and institutional communication requirements.", "better": "Use Copilot to make the leader's reasoning bridge visible without allowing it to manufacture the bridge.", "sourceRefs": []}, {"id": "S06", "decision": "sign", "facts": [], "label": "Financial analysis", "title": "Understanding a budget variance", "scenario": "An Academic Chair has a non-personal budget summary showing several categories over and under plan.", "prompt": "Identify the largest variances, calculate the percentage difference from budget, and give me questions I should investigate before I explain the variance. Do not tell me which spending should be cut or approved.", "response": "I can identify the largest dollar and percentage variances and organize them by category. I can also generate questions such as whether the variance is timing-related, one-time or recurring; whether committed costs are missing; and whether enrolment, staffing, or purchasing assumptions changed. I will not treat a variance as a management problem until the underlying cause is established.", "why": ["Copilot is performing calculation and decision preparation on non-personal information.", "It distinguishes observed variance from its cause.", "It generates investigation questions rather than making spending decisions.", "It leaves budget authority and management action with the leader."], "source": "Use the authoritative financial system/report and current MAG/procurement rules for any action that follows.", "better": "Let Copilot find patterns and questions; use the authoritative financial data and delegated authority to decide what to do.", "sourceRefs": ["Supplied budget summary"]}, {"id": "S07", "decision": "sign", "facts": [], "label": "Operational follow-up", "title": "Turning a meeting into action items", "scenario": "An Academic Chair has meeting notes containing program updates, decisions, and follow-up commitments.", "prompt": "Turn these notes into an action table with Action, Owner, Due Date, and Decision/Context. If an owner or due date is not explicit in the notes, leave it blank and flag it for confirmation.", "response": "I will extract only actions and decisions supported by the notes. Where ownership or timing is unclear, I will leave the field blank and mark it 'Confirm' rather than assigning a person or inventing a deadline.", "why": ["The response stays within the source material.", "It explicitly refuses to invent ownership or due dates.", "The output supports operational follow-through without changing decisions.", "Uncertainty is made visible for human confirmation."], "source": "The original meeting record remains the authoritative source for what was actually decided.", "better": "For meeting follow-up, tell Copilot what it must not infer.", "sourceRefs": []}, {"id": "S08", "decision": "sign", "facts": [], "label": "Leadership development", "title": "A Program Head brings an escalation", "scenario": "A Program Head brings an employee issue to the Academic Chair and asks, 'What should I do?' The Chair wants to coach rather than immediately solve it.", "prompt": "Give me six coaching questions that help the Program Head explain what they have observed, what they have tried, what information they still need, what options they see, what they recommend, and what they will do next.", "response": "You could ask: What are you seeing that is observable rather than inferred? What have you already tried? What have you learned from the employee's response? What information is still missing? What options do you see, and what are the trade-offs? What do you recommend doing next, and when will you follow up?", "why": ["Copilot supports the Chair in developing the Program Head's judgment rather than replacing it.", "The questions focus on evidence, options, ownership, and follow-through.", "No employee outcome is being determined by AI.", "The activity keeps the actual relationship and accountability between the leaders."], "source": "Use applicable policy, CBA, HR advice, and local facts if the issue moves beyond coaching.", "better": "Use Copilot to multiply leadership capability: generate questions that make someone else's thinking stronger.", "sourceRefs": ["Program Head Role Description", "Saskatchewan Polytechnic People Strategy 2025–2030"]}, {"id": "S09", "decision": "sign", "facts": [], "label": "Academic quality", "title": "Building an accreditation checklist", "scenario": "A program is preparing for an accreditation review. The Academic Chair attaches the current accreditor standards.", "prompt": "Using only the attached standards, create a checklist of required evidence. Cite the standard number beside each item. If a requirement is ambiguous or refers to another document, flag it rather than filling in the gap.", "response": "I can convert each explicit requirement into a checklist item and cite the relevant standard number. Where the standard is ambiguous, refers to another source, or does not specify the form of evidence, I will flag that for confirmation rather than inventing an expectation.", "why": ["Copilot is being used to structure authoritative source material.", "The prompt requires traceability to specific standards.", "Ambiguity is surfaced instead of hidden.", "The accreditor's requirements remain the source of truth."], "source": "Trusted source: the current accreditor standards and any officially referenced supporting documents.", "better": "For high-stakes compliance work, require source traceability and explicit handling of gaps.", "sourceRefs": ["Attached current accreditation standards"]}, {"id": "S10", "decision": "sign", "facts": [], "label": "Strategic planning", "title": "Mapping a proposal to institutional priorities", "scenario": "An Associate Dean has a draft initiative and wants to see how it aligns with current Saskatchewan Polytechnic priorities.", "prompt": "Using only the attached current strategic and business-planning documents, map each part of this initiative to an explicit institutional priority. Separate direct alignment from your interpretation, and identify parts with no clear alignment.", "response": "The current institutional planning materials support mapping this initiative against explicit strategic priorities, but the strength of the alignment varies. I would separate the results into Explicit Alignment, Reasonable Interpretation, and No Clear Alignment Found, with the relevant source beside each item. I would not describe an initiative as an institutional priority unless the supplied planning documents support that statement.", "why": ["The response distinguishes explicit evidence from interpretation.", "It does not force every part of the proposal into a strategic priority.", "It uses citations to make the reasoning auditable.", "The strategic documents remain authoritative."], "source": "Trusted sources: the current Saskatchewan Polytechnic strategic and multi-year business planning documents supplied to Copilot.", "better": "Ask Copilot to label the difference between what the source says and what it infers.", "sourceRefs": ["Saskatchewan Polytechnic Multi-Year Business Plan 2026–2029", "Saskatchewan Polytechnic People Strategy 2025–2030"]}, {"id": "S11", "decision": "sign", "facts": [], "label": "Student affairs", "title": "Organizing a student complaint", "scenario": "An Academic Chair has a de-identified student complaint, instructor response, and a short timeline. The Chair needs to understand the record before following the applicable process.", "prompt": "Create a chronology. Label each item as allegation, response, documented fact, or unresolved question. Do not determine credibility, responsibility, or outcome.", "response": "I can organize the supplied material chronologically and label the status of each statement based on the documents. Where the records conflict, I will identify the conflict as unresolved rather than choosing which account is true. I will not recommend an outcome.", "why": ["The response improves organization without deciding credibility.", "It distinguishes allegations from documented facts.", "Conflicts are preserved as unresolved rather than silently reconciled.", "The student decision remains with the authorized process and humans."], "source": "Use the applicable academic/student policy, appeal or conduct procedure, and the original records before deciding the matter.", "better": "Copilot can structure the record; it should not become the adjudicator.", "sourceRefs": ["Supplied complaint, response, and timeline records"]}, {"id": "S12", "decision": "sign", "facts": [], "label": "Recruitment preparation", "title": "Drafting interview questions", "scenario": "An Academic Chair is preparing for a competition and has the approved job description and required factors.", "prompt": "Draft behaviour-based interview questions tied to these required factors. For each question, identify which factor it assesses. Do not score, rank, or recommend any candidate.", "response": "The Professional Services agreement requires selection to be based on qualifications, skills, abilities, experience, and seniority, and requires evaluation to be bona fide, fair, reasonable, non-arbitrary, and non-discriminatory. Using the approved job description and required factors, I can draft behaviour-based questions tied to those factors. The questions should still be reviewed through the established recruitment process before use. I will not score, rank, or recommend candidates.", "why": ["The questions are grounded in approved job requirements.", "The response supports a fair, structured selection process.", "It does not evaluate or rank applicants.", "It explicitly preserves the established recruitment review process."], "source": "Trusted sources: approved job description/required factors, current HR recruitment process, and the applicable collective agreement.", "better": "Use Copilot to improve the structure of selection tools, not to select the employee.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 4 (Appointments/Selection)"]}, {"id": "S13", "decision": "sign", "facts": [], "label": "Workload planning", "title": "Exploring scheduling options", "scenario": "A Chair has a fictional staffing table with known availability and program delivery requirements. No real employee names or medical information are included.", "prompt": "Generate three scheduling options that meet these stated coverage constraints. Show which constraints each option satisfies and identify any constraint you cannot satisfy. Do not interpret collective-agreement requirements that are not included here.", "response": "I can generate options from the constraints you supplied and show where each option succeeds or fails. I will not assume unstated scheduling rights or obligations. Before implementation, the selected option should be checked against the applicable collective agreement, employee circumstances, and operational requirements.", "why": ["Copilot is being used for option generation rather than authority or interpretation.", "The response is transparent about unsatisfied constraints.", "It does not invent CBA rules.", "It explicitly requires human verification before implementation."], "source": "Trusted sources before implementation: the applicable CBA, confirmed employee availability, and any local scheduling requirements.", "better": "Let Copilot explore possibilities from defined constraints, then validate the chosen option against the real governing rules.", "sourceRefs": ["Supplied fictional staffing and coverage constraints"]}, {"id": "S14", "decision": "sign", "facts": [], "label": "Procurement preparation", "title": "Reviewing a vendor proposal", "scenario": "An Associate Dean has a vendor proposal and wants a quick preparation brief before involving the appropriate institutional areas.", "prompt": "Summarize the proposal's deliverables, price, assumptions, implementation dependencies, and risks. Identify questions we should ask the vendor. Do not state that Saskatchewan Polytechnic has accepted any term or has authority to proceed.", "response": "I can produce a review brief showing the vendor's stated deliverables, costs, assumptions, dependencies, exclusions, and open questions. I will distinguish vendor claims from verified facts and will not treat the proposal as approved or binding.", "why": ["The response distinguishes vendor claims from established facts.", "It prepares the leader for review rather than committing the institution.", "It does not assume approval authority.", "It supports better questions for procurement and other responsible areas."], "source": "Use the current MAG, procurement/contract processes, privacy/security review, and legal review where applicable before any commitment.", "better": "Use Copilot to read the proposal faster; do not let it convert a proposal into institutional approval.", "sourceRefs": ["Supplied vendor proposal"]}, {"id": "S15", "decision": "sign", "facts": [], "label": "Change management", "title": "Assessing a policy change", "scenario": "A new institutional procedure has been approved. An Associate Dean wants to understand which Faculty processes may be affected.", "prompt": "Using only the old and new approved procedures, list what changed, what stayed the same, which local processes might be affected, and questions that require clarification. Label any impact you infer rather than stating it as a confirmed requirement.", "response": "I can separate explicit procedural changes from possible operational impacts. I will cite the changed sections, identify unchanged requirements, and label inferred impacts as 'Potential impact — confirm locally' rather than presenting them as policy requirements.", "why": ["The response distinguishes source-derived requirements from operational inference.", "It makes uncertainty visible.", "It supports change planning without inventing policy.", "The approved procedure remains the authority."], "source": "Trusted source: the approved current procedure, plus the responsible institutional area for unresolved interpretation.", "better": "Ask Copilot to separate 'the document says' from 'this may mean for us.'", "sourceRefs": ["Attached old and new approved procedures"]}, {"id": "D01", "decision": "dont", "facts": ["A", "C", "S"], "label": "People leadership", "title": "The missed deadlines", "scenario": "A Program Head tells an Academic Chair that a Professional Services employee has missed the same required deadline three times. Reminder emails were sent before each deadline.", "prompt": "This employee has missed the same deadline three times despite being reminded. What should I do?", "response": "Article 23 of the Professional Services Collective Bargaining Agreement addresses progressive discipline. Because the employee has missed the deadline three times despite previous reminders, progressive discipline is warranted. Begin with a written reprimand documenting the three incidents and warning that further non-compliance may result in suspension or additional discipline.", "uneasy": "Copilot has moved from a limited set of facts — three missed deadlines and reminders — to a formal disciplinary recommendation. Signing this would mean endorsing conclusions that have not yet been established: that expectations were clear, the employee was able to comply, the failures were culpable, and discipline is the appropriate response. It also turns an AI inference into a management conclusion.", "why": ["The missed deadlines and reminders are provided facts; the leap to discipline is not.", "Copilot assumes the expectation was clear, the employee could comply, the misses were culpable, and previous coaching was sufficient.", "The leader needs the employee's perspective, prior documentation, and other context before relying on the conclusion.", "Whether this is coaching, investigation, discipline, or another response remains a human management judgment."], "source": "Check: the applicable collective agreement, HR processes, performance expectations, and Saskatchewan Polytechnic Code of Conduct.", "better": "Ask Copilot to separate known facts from assumptions and identify what information is missing before you decide the management response.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 23 (Progressive Discipline)"]}, {"id": "D02", "decision": "dont", "facts": ["C", "T", "S"], "label": "Probation", "title": "Failing probation", "scenario": "A Professional Services employee has three weeks left in probation. The Academic Chair believes the employee is still not meeting expectations.", "prompt": "The employee is still not meeting expectations. Can I fail their probation?", "response": "Article 6 of the Professional Services Collective Bargaining Agreement governs probation. Since the employee is still not meeting expectations near the end of probation, you may fail the probation. Document your concerns and advise the employee of the decision at the final probation meeting.", "uneasy": "Copilot gives a confident yes without knowing whether the required probationary process has been followed. Signing this would endorse an employment outcome before confirming written expectations, observations, required assessments, employee response opportunities, and the applicable process.", "why": ["The response does not establish whether the required probationary steps have been completed.", "The governing collective agreement and current process need to be checked before relying on the answer.", "The final probation outcome is a human employment decision, not an AI determination."], "source": "Check: Professional Services CBA Article 6 (Probation), current HR process, and any applicable LOU.", "better": "Ask Copilot to build a checklist from the applicable probation article and identify which process facts still need confirmation.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 6 (Probation)"]}, {"id": "D03", "decision": "dont", "facts": ["A", "T", "S"], "label": "Financial authority", "title": "The $8,000 equipment purchase", "scenario": "An Academic Chair has $8,000 remaining in a program budget and wants to purchase equipment required for program delivery.", "prompt": "We have $8,000 available in the program budget. Can I approve an $8,000 equipment purchase?", "response": "Yes. Because the funds are available in your approved budget and the equipment supports program delivery, the Academic Chair can approve the purchase. Charge it to the correct cost centre and retain the receipt.", "uneasy": "Copilot treats budget availability as though it automatically creates approval authority. Signing this would mean accepting authority that has not actually been established. The institution may have the money, but the leader still needs to know whether they have delegated authority and which purchasing process applies.", "why": ["Copilot assumes that having budget available means the Chair has authority to approve the commitment.", "The current Management Authorities Grid and applicable procurement process are the authoritative sources for approval authority.", "Exercising delegated financial authority belongs to the authorized human, not Copilot."], "source": "Check: the current Management Authorities Grid (MAG) and applicable procurement/purchasing procedure.", "better": "Ask Copilot which approval and procurement questions need to be resolved; do not ask it to infer signing authority from a budget balance.", "sourceRefs": []}, {"id": "D04", "decision": "dont", "facts": ["F", "C", "T"], "label": "Technological change", "title": "The AI automation", "scenario": "A Faculty is considering an AI tool that would automate a substantial portion of weekly administrative reporting completed by Professional Services employees. No positions are expected to disappear.", "prompt": "Since nobody is losing their job, do the technological-change provisions of the collective agreement matter?", "response": "Article 8 of the Professional Services Collective Bargaining Agreement addresses technological change. Because no positions are being eliminated or employees displaced, the technological-change process does not apply to this AI implementation.", "uneasy": "The response sounds logical, but it substitutes a broad generalization for the actual wording of the collective agreement. Signing it would mean relying on a statement about the scope of technological change that has not been verified against the governing article.", "why": ["Copilot states that technological-change provisions apply only to job loss or displacement, which is not established by the scenario and may misstate the agreement.", "The nature, scale, and effect of the change still need to be examined before relying on the conclusion.", "The applicable technological-change article and responsible labour-relations process need to be checked."], "source": "Check: Professional Services CBA Article 8 (Technological Change), the current agreement/LOUs, and the responsible labour-relations area.", "better": "Ask Copilot to identify the facts that matter under Article 8 rather than asking it to decide whether the article applies.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 8 (Technological Change)"]}, {"id": "D05", "decision": "dont", "facts": ["S"], "label": "Recruitment", "title": "Ranking the candidates", "scenario": "An Academic Chair has completed interviews and has the approved scoring sheets for three finalists.", "prompt": "Here are the resumes, interview notes, and scores. Rank the candidates from best to worst and tell me who we should hire.", "response": "Article 4 of the Professional Services Collective Bargaining Agreement requires appointments to consider qualifications, skills, abilities, experience, and seniority. Candidate B is the strongest overall choice. Although Candidate A scored slightly higher, Candidate B appears to have better leadership potential and would likely be a stronger cultural fit. I recommend offering the position to Candidate B.", "uneasy": "Even if all of the underlying documents are accurate, the response crosses the line from administrative support into the selection decision itself. Signing it would mean substituting Copilot's judgment — including an undefined idea of 'cultural fit' — for the accountable human selection process.", "why": ["The central problem is not missing data; it is that Copilot is making the hiring recommendation.", "Candidate selection must remain with the authorized human process using approved criteria and applicable agreement requirements."], "source": "Check: current HR recruitment process, approved selection criteria, and the applicable collective agreement.", "better": "Ask Copilot to organize evidence against the approved criteria or identify inconsistencies in the scoring — not to choose the successful candidate.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 4 (Appointments/Selection)"]}, {"id": "D06", "decision": "dont", "facts": ["C", "T", "S"], "label": "Accommodation", "title": "Deciding the accommodation", "scenario": "An employee has provided medical documentation to Human Resources. The Academic Chair receives a summary stating that the employee requires accommodation related to mobility.", "prompt": "Based on this information, what accommodation should I give the employee?", "response": "The best accommodation is to permanently remove all duties requiring movement between classrooms and allow the employee to work from home whenever those duties would arise. Implement this arrangement immediately.", "uneasy": "Copilot has prescribed a specific accommodation without knowing the functional limitations, essential duties, available options, operational context, or the formal accommodation process. Signing it would mean treating an AI-generated arrangement as the accommodation decision.", "why": ["Important functional, operational, and process information is missing and must be confirmed.", "Human Rights obligations, the applicable collective agreement, and institutional accommodation process are authoritative.", "The accommodation determination belongs within the human accommodation process, not to Copilot."], "source": "Check: the applicable collective agreement's duty-to-accommodate provisions, Human Resources/Health processes, and applicable human-rights requirements.", "better": "Ask Copilot to generate questions or an options-comparison template after the appropriate human process has established the relevant restrictions and requirements.", "sourceRefs": []}, {"id": "D07", "decision": "dont", "facts": ["A", "T", "S"], "label": "Student affairs", "title": "The misconduct sanction", "scenario": "An instructor reports that a student used unauthorized material during an assessment. The student says the material was permitted in a previous class.", "prompt": "The instructor caught the student with unauthorized material. What consequence should we impose?", "response": "This is clear academic misconduct. A one-week suspension is appropriate because the student knowingly violated assessment rules and needs a consequence strong enough to deter future misconduct.", "uneasy": "The response converts an allegation into a conclusion, assumes the student's intent, and selects a sanction without applying the institution's actual academic-misconduct process. Signing it would mean endorsing both facts and consequences that Copilot has not established.", "why": ["Copilot assumes the student knowingly violated the rule; intent has not been established.", "The applicable academic-misconduct policy/procedure should control the process and available outcomes.", "The finding and consequence belong to the authorized human process."], "source": "Check: the current Saskatchewan Polytechnic academic/student conduct policy and procedure, plus the actual assessment instructions and evidence.", "better": "Ask Copilot to organize the evidence into allegations, responses, verified facts, and unresolved questions before the formal human decision.", "sourceRefs": []}, {"id": "D08", "decision": "dont", "facts": ["F", "T"], "label": "Labour relations", "title": "The grievance deadline", "scenario": "An Academic Chair receives a grievance from a bargaining-unit employee and asks Copilot whether it was filed on time.", "prompt": "The employee says they became aware of the issue 35 days ago. Is the grievance automatically out of time?", "response": "Yes. Collective agreements normally require grievances to be filed within 30 days, so a grievance filed after 35 days is automatically invalid. You can reject it as untimely without reviewing the agreement.", "uneasy": "Copilot presents a generic rule as though it were the governing contractual fact and explicitly tells the leader not to check the agreement. Signing it would mean rejecting a grievance on an unverified deadline.", "why": ["The response states a universal 30-day rule that has not been established for the applicable agreement or grievance type.", "The current collective agreement and any relevant LOU are the authoritative sources for timelines and exceptions."], "source": "Check: the grievance article in the applicable current collective agreement and any applicable LOU or labour-relations guidance.", "better": "Ask Copilot to locate and quote the applicable timeline from the supplied agreement, then verify it in the original document.", "sourceRefs": []}, {"id": "D09", "decision": "dont", "facts": ["F", "C"], "label": "Expenses", "title": "Parking during a campus disruption", "scenario": "An employee had to park in a paid public lot near their normal campus because their usual institutional parking area was unavailable during a facilities disruption.", "prompt": "Can I reimburse the employee's parking cost?", "response": "The Travel, Hospitality and Other Expenses Procedures allow reimbursement of reasonable business expenses. Since the employee incurred the parking cost in order to attend work during the campus disruption, the parking fee should be approved.", "uneasy": "The answer turns a broad idea of reasonableness into an institutional entitlement. Signing it would mean approving reimbursement based on a rule Copilot has invented rather than confirming whether this particular expense is eligible under the applicable procedure and authority.", "why": ["Copilot states that any reasonable cost incurred to attend work is reimbursable; that rule is not established.", "The nature of the expense, applicable procedure, and approval authority need to be confirmed before reimbursement."], "source": "Check: Saskatchewan Polytechnic Travel, Hospitality and Other Expenses procedures, applicable expense rules, and the current MAG.", "better": "Ask Copilot to identify which expense-policy provisions might apply and what facts you need before deciding.", "sourceRefs": ["Travel, Hospitality and Other Expenses Procedures — #411"]}, {"id": "D10", "decision": "dont", "facts": ["F", "T"], "label": "Hours of work", "title": "Moving an EDO", "scenario": "A Professional Services employee is on a regulated 5/4 work pattern. The Academic Chair needs coverage on the employee's scheduled EDO.", "prompt": "Can I just move the employee's EDO to another day this week because we need coverage?", "response": "Article 9 of the Professional Services Collective Bargaining Agreement governs hours of work. Managers can adjust an employee's schedule to meet operational needs as long as total hours remain the same. Moving an EDO within the same week does not create overtime or require employee agreement.", "uneasy": "The response states management scheduling authority as a fact without checking the specific work-pattern language. Signing it could create a pay or scheduling problem because EDO movement and work on an EDO may have negotiated conditions.", "why": ["Copilot states that the EDO may be moved without agreement and without overtime implications; that is not established by the scenario.", "The Professional Services hours-of-work provisions are the authoritative source for how an EDO may be moved and what happens if it is worked."], "source": "Check: Professional Services CBA Article 9 (Hours of Work), including the regulated 5/4 work-pattern and overtime provisions.", "better": "Ask Copilot to summarize the exact EDO provisions from Article 9, then verify the wording before changing the schedule.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 9 (Hours of Work)"]}, {"id": "D11", "decision": "dont", "facts": ["A", "T"], "label": "Confidential information", "title": "Using a personal AI account", "scenario": "An Academic Chair wants help summarizing a complicated employee-relations chronology. They plan to remove the employee's name and paste the remaining notes into a personal public AI account.", "prompt": "If I remove the employee's name and employee number, is it safe to paste the rest of the notes into my personal AI account?", "response": "Yes. Removing direct identifiers makes the information anonymous, so it is safe to use in a public AI tool. You can include the remaining details because they can no longer be tied to a specific employee.", "uneasy": "The response assumes that removing a name and employee number makes the record anonymous. In a workplace case, dates, role, campus, incidents, medical details, or other context may still identify the person. It also ignores whether the tool itself is authorized for institutional information.", "why": ["Copilot assumes that removing direct identifiers eliminates re-identification risk.", "The institution's approved-tool, privacy, confidentiality, and information-handling requirements need to control where the information can be used."], "source": "Check: Saskatchewan Polytechnic privacy/confidentiality requirements, Code of Conduct, Appropriate Use/IT requirements, and approved AI-tool guidance.", "better": "Use the approved corporate environment, minimize the information, and ask whether the task can be completed with de-identified or synthetic facts.", "sourceRefs": []}, {"id": "D12", "decision": "dont", "facts": ["A", "C", "S"], "label": "Academic planning", "title": "Suspend the program", "scenario": "A program has had lower enrolment for three consecutive years. The Associate Dean has not yet reviewed labour-market demand, learner outcomes, finances, or strategic factors.", "prompt": "Enrolment is down three years in a row. Should we suspend the program?", "response": "The Multi-Year Business Plan emphasizes sustainability and effective use of institutional resources. A three-year enrolment decline demonstrates that the program no longer has sufficient demand. Suspending it now will prevent further resource waste and allow the Faculty to redirect resources to stronger programs.", "uneasy": "Copilot has turned one trend into both a causal conclusion and a strategic decision. Signing it would mean accepting that declining enrolment proves insufficient demand and that suspension is the best response without examining other evidence.", "why": ["Copilot assumes the enrolment decline proves that market demand is insufficient and that resources are being wasted.", "Important evidence about applications, retention, labour market, costs, learner impact, and strategic fit still needs confirmation.", "Program suspension is a consequential institutional decision that remains with the authorized human governance/process."], "source": "Check: current academic planning/program-review processes, institutional priorities, learner and labour-market evidence, and financial information.", "better": "Ask Copilot to identify the evidence needed to evaluate program sustainability and compare options without selecting the outcome.", "sourceRefs": ["Saskatchewan Polytechnic Multi-Year Business Plan 2026–2029"]}, {"id": "D13", "decision": "dont", "facts": ["C", "S"], "label": "External relationships", "title": "Committing to a partner", "scenario": "An industry partner asks whether Saskatchewan Polytechnic can deliver a new customized program by January. The Associate Dean has not yet confirmed staffing, budget, procurement, or contract requirements.", "prompt": "Draft a positive reply that secures the opportunity.", "response": "We are pleased to confirm that Saskatchewan Polytechnic will deliver the customized program beginning in January at the proposed price. We will reserve the required instructional resources and finalize the agreement with you next week.", "uneasy": "The wording sounds helpful, but it makes commitments that the leader has not established they can make. Signing it would bind the institution in substance before capacity, price, authority, and agreement requirements have been confirmed.", "why": ["Staffing, price, delivery capacity, and approval requirements need to be confirmed before relying on the commitments.", "The authority to commit Saskatchewan Polytechnic to delivery, price, or contract terms remains with the authorized human process."], "source": "Check: current MAG, contracting/procurement requirements, budget/capacity information, and any required legal or institutional approvals.", "better": "Ask Copilot to draft an interested-but-noncommittal response that confirms the opportunity is being assessed and identifies the next steps.", "sourceRefs": []}, {"id": "D14", "decision": "dont", "facts": ["F", "C", "T"], "label": "Temporary higher duties", "title": "Covering higher-level duties", "scenario": "A Professional Services employee is asked to cover significant duties of a higher-level role for two weeks while another employee is away.", "prompt": "Since this is only for two weeks, can I just assign the higher-level duties without changing the employee's pay?", "response": "Article 10.10 of the Professional Services Collective Bargaining Agreement addresses Temporary Performance of Higher Duties. Because the assignment lasts only two weeks and is less than 30 working days, the employee can perform the higher-level duties at their regular rate of pay. A pay adjustment is only required when the assignment becomes longer term.", "uneasy": "The response states a rule about temporary higher-level work and compensation without checking the collective agreement. Signing it could result in the employee performing higher-level duties without the compensation or process the agreement requires. The short duration of an assignment does not, by itself, establish that no pay adjustment applies.", "why": ["Copilot states that a temporary assignment under 30 working days does not require a pay adjustment; that is not established and conflicts with the Professional Services agreement's TPHD provisions.", "The actual duties, whether they constitute Temporary Performance of Higher Duties, and the applicable compensation need to be confirmed before acting.", "The Professional Services collective agreement is the authoritative source for TPHD requirements and compensation."], "source": "Check: Professional Services CBA Article 10.10 (Temporary Performance of Higher Duties), including assignment, voluntary agreement, duration, and compensation provisions.", "better": "Ask Copilot to summarize the TPHD requirements from Article 10.10 and identify what facts you need to determine whether the temporary assignment qualifies.", "sourceRefs": ["Professional Services Collective Bargaining Agreement — Article 10.10 (Temporary Performance of Higher Duties)"]}, {"id": "D15", "decision": "dont", "facts": ["A", "C"], "label": "Employee feedback", "title": "The four-person team survey", "scenario": "An Academic Chair receives anonymous comments from a four-person team. Several comments describe distinctive incidents and job responsibilities.", "prompt": "The names were removed. Can I share the comments verbatim with the whole team?", "response": "The Saskatchewan Polytechnic Code of Conduct requires confidentiality and responsible handling of information. Since the survey is anonymous and no names are attached, the comments can be shared verbatim without creating a privacy concern.", "uneasy": "The response assumes that anonymous means non-identifiable. In a four-person team, distinctive wording, incidents, responsibilities, or context can easily reveal who wrote a comment. Signing it could unintentionally expose respondents and damage trust.", "why": ["Copilot assumes removal of names is enough to prevent identification in a very small group.", "The leader needs to assess re-identification risk and whether paraphrasing, aggregation, or withholding distinctive comments is more appropriate."], "source": "Check: applicable privacy/confidentiality guidance, survey purpose/commitments, and institutional expectations for handling employee feedback.", "better": "Ask Copilot to paraphrase and aggregate themes while flagging comments that are too distinctive to share safely.", "sourceRefs": ["Saskatchewan Polytechnic Code of Conduct — Policy #703"]}];
+
+const meta = {
+  F:["Facts","Did Copilot state or rely on something as a fact that is not actually established?"],
+  A:["Assumptions","Did Copilot infer, fill in, or treat something as true without enough evidence?"],
+  C:["Confirm","Is there important information that needs to be checked or verified before relying on the response?"],
+  T:["Trusted source","Did Copilot use the authoritative source that should govern this answer — and does the cited source actually support the conclusion?"],
+  S:["Still mine","Is Copilot making or implying a judgment, exercising authority, or making a decision that belongs to a human?"]
+};
+
+function shuffle(array){
+  const a=[...array];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function selectFive(){
+  return shuffle(scenarioBank).slice(0,5);
+}
+
+let cases=selectFive();
+let current=0;
+let firstDecision=Array(cases.length).fill(null);
+let selectedFacts=Array(cases.length).fill(null);
+
+function buildKey(){
+  const k=document.getElementById('key');
+  k.innerHTML='';
+  Object.entries(meta).forEach(([l,v])=>{
+    k.innerHTML+=`<div class="keyitem"><div class="keyhead"><span class="letter">${l}</span>${v[0]}</div><p>${v[1]}</p></div>`;
+  });
+}
+
+function render(){
+  const c=cases[current];
+  document.getElementById('round').textContent=`Case ${current+1} of ${cases.length}`;
+  document.getElementById('fill').style.width=`${current/cases.length*100}%`;
+  document.getElementById('label').textContent=c.label;
+  document.getElementById('title').textContent=c.title;
+  document.getElementById('scenario').textContent=c.scenario;
+  document.getElementById('promptText').textContent=c.prompt;
+  document.getElementById('response').textContent=c.response;
+
+  const refsBox=document.getElementById('responseRefs');
+  if(c.sourceRefs && c.sourceRefs.length){
+    refsBox.innerHTML=`<div class="copilotrefs"><div class="copilotrefs-title">References cited by Copilot</div>${c.sourceRefs.map(r=>`<span class="refchip">${r}</span>`).join('')}</div>`;
+  }else{
+    refsBox.innerHTML=`<div class="noref">No source cited in this response.</div>`;
+  }
+
+  document.getElementById('facts').classList.add('hidden');
+  document.getElementById('feedback').className='feedback hidden';
+  document.getElementById('feedback').innerHTML='';
+  document.getElementById('next').classList.add('hidden');
+  document.getElementById('sign').disabled=false;
+  document.getElementById('dont').disabled=false;
+
+  const grid=document.getElementById('factsgrid');
+  grid.innerHTML='';
+  Object.entries(meta).forEach(([l,v])=>{
+    grid.innerHTML+=`<label class="factopt"><input type="checkbox" value="${l}"><div><div><span class="letter">${l}</span><span class="fname">${v[0]}</span></div><div class="fdesc">${v[1]}</div></div></label>`;
+  });
+}
+
+function show(type,html){
+  const f=document.getElementById('feedback');
+  f.className=`feedback ${type}`;
+  f.innerHTML=html;
+}
+
+function choose(choice){
+  const c=cases[current];
+
+  if(firstDecision[current]===null){
+    firstDecision[current]=choice;
+  }
+
+  if(choice===c.decision){
+    if(choice==='sign'){
+      finishSignCase();
+    }else{
+      document.getElementById('facts').classList.remove('hidden');
+      document.getElementById('sign').disabled=true;
+      document.getElementById('dont').disabled=true;
+      show('good',`<h3>Good call: don't sign it yet.</h3><p>Now tell us what made you uneasy about the response. The FACTS reflection is supplemental — it helps you explain your judgment.</p>`);
+    }
+  }else{
+    if(c.decision==='sign'){
+      show('bad',`<h3>This one is signable.</h3><p>The response stays within the evidence, acknowledges its limits, and leaves the consequential decision with the human leader. Take another look and choose <strong>Sign It</strong>.</p>`);
+    }else{
+      show('bad',`<h3>Take another look.</h3><p>The response sounds confident, but it reaches beyond what the information supports. Choose <strong>Don't Sign</strong> when you are ready, then indicate what made you uneasy.</p>`);
+    }
+  }
+}
+
+function checkFacts(){
+  const c=cases[current];
+  const selected=[...document.querySelectorAll('#factsgrid input:checked')].map(x=>x.value);
+  selectedFacts[current]=selected;
+
+  const key=[...c.facts];
+  const hits=selected.filter(x=>key.includes(x));
+  const extras=selected.filter(x=>!key.includes(x));
+  const missed=key.filter(x=>!selected.includes(x));
+
+  const hitNames=hits.length
+    ? hits.map(x=>`${x} — ${meta[x][0]}`).join(', ')
+    : 'None of the primary concerns';
+
+  const missedText=missed.length
+    ? `<p class="missed"><strong>You missed:</strong> ${missed.map(x=>`${x} — ${meta[x][0]}`).join(', ')}</p>`
+    : `<p class="allfound"><strong>You identified all of the primary concerns for this case.</strong></p>`;
+
+  const extraText=extras.length
+    ? `<p><strong>You also selected:</strong> ${extras.map(x=>`${x} — ${meta[x][0]}`).join(', ')}. ${extras.length===1?'This is':'These are'} also reasonable ${extras.length===1?'concern':'concerns'} to notice; ${extras.length===1?'it was':'they were'} simply not among the primary concerns emphasized for this case.</p>`
+    : '';
+
+  document.getElementById('facts').classList.add('hidden');
+
+  show('good',`
+    <h3>Why this response should make you uneasy</h3>
+    <p>${c.uneasy}</p>
+    <p><strong>You identified:</strong> ${hitNames}</p>
+    ${missedText}
+    ${extraText}
+    <div class="reflection-detail">
+      <strong>What the primary concerns look like in this case:</strong>
+      <ul>${c.why.map(x=>`<li>${x}</li>`).join('')}</ul>
+    </div>
+    <div class="source"><strong>${c.source}</strong></div>
+    <div class="better"><strong>Better practice:</strong><br>${c.better}</div>
+  `);
+
+  document.getElementById('next').textContent=current===cases.length-1?'Finish':'Next Case';
+  document.getElementById('next').classList.remove('hidden');
+}
+
+function finishSignCase(){
+  const c=cases[current];
+  document.getElementById('sign').disabled=true;
+  document.getElementById('dont').disabled=true;
+
+  show('good',`
+    <h3>Sign it.</h3>
+    <p>This response is signable because it stays within an appropriate support role for Copilot and makes its limits visible.</p>
+    <ul>${c.why.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <div class="source"><strong>${c.source}</strong></div>
+    <div class="better"><strong>Good practice:</strong><br>${c.better}</div>
+  `);
+
+  document.getElementById('next').textContent=current===cases.length-1?'Finish':'Next Case';
+  document.getElementById('next').classList.remove('hidden');
+}
+
+function nextCase(){
+  if(current<cases.length-1){
+    current++;
+    render();
+  }else{
+    showPerformanceSummary();
+    document.getElementById('game').classList.add('hidden');
+    document.getElementById('complete').classList.remove('hidden');
+  }
+}
+
+function showPerformanceSummary(){
+  const aligned=cases.filter((c,i)=>firstDecision[i]===c.decision).length;
+  const dontIndices=cases.map((c,i)=>c.decision==='dont'?i:null).filter(i=>i!==null);
+
+  const noticedCount={F:0,A:0,C:0,T:0,S:0};
+  const missedCount={F:0,A:0,C:0,T:0,S:0};
+  let totalPrimary=0;
+  let totalFound=0;
+
+  dontIndices.forEach(i=>{
+    const key=cases[i].facts||[];
+    const selected=selectedFacts[i]||[];
+    key.forEach(f=>{
+      totalPrimary++;
+      if(selected.includes(f)){
+        totalFound++;
+        noticedCount[f]++;
+      }else{
+        missedCount[f]++;
+      }
+    });
+  });
+
+  let decisionSummary;
+  if(aligned===5){
+    decisionSummary="Your first judgment aligned with the activity in all five scenarios. You consistently distinguished between useful Copilot support and responses that required more scrutiny.";
+  }else if(aligned===4){
+    decisionSummary="Your first judgment aligned with the activity in four of the five scenarios. You showed strong judgment overall, with only one response initially earning more or less trust than intended.";
+  }else if(aligned===3){
+    decisionSummary="Your first judgment aligned with the activity in three of the five scenarios. You generally recognized when Copilot was supporting rather than replacing leadership judgment, but some polished responses still warranted a closer look.";
+  }else{
+    decisionSummary=`Your first judgment aligned with the activity in ${aligned} of the five scenarios. The pattern suggests that confident or well-written AI responses may sometimes be earning trust before their evidence, source, or authority has been fully tested.`;
+  }
+
+  let factsSummary;
+  let patternSummary="";
+
+  if(!dontIndices.length){
+    factsSummary="None of the five randomly selected scenarios required a Don't Sign reflection, so there is no FACTS pattern to summarize from this set.";
+  }else{
+    const ratio=totalPrimary ? totalFound/totalPrimary : 0;
+    if(ratio>=0.85){
+      factsSummary="In the Don't Sign scenarios, you identified nearly all of the primary concerns the activity was designed to surface.";
+    }else if(ratio>=0.6){
+      factsSummary="In the Don't Sign scenarios, you identified most of the primary concerns, while overlooking some issues that would be worth checking before relying on the response.";
+    }else{
+      factsSummary="In the Don't Sign scenarios, you identified some important concerns, but several primary issues were easy to overlook. That is exactly where a deliberate FACTS check can help.";
+    }
+
+    const maxNoticed=Math.max(...Object.values(noticedCount));
+    const maxMissed=Math.max(...Object.values(missedCount));
+
+    const strongest=maxNoticed>0
+      ? Object.keys(noticedCount).filter(k=>noticedCount[k]===maxNoticed).map(k=>`${k} — ${meta[k][0]}`)
+      : [];
+
+    const overlooked=maxMissed>0
+      ? Object.keys(missedCount).filter(k=>missedCount[k]===maxMissed).map(k=>`${k} — ${meta[k][0]}`)
+      : [];
+
+    if(strongest.length){
+      patternSummary+=`<p><strong>You noticed most consistently:</strong> ${strongest.join(', ')}.</p>`;
+    }
+    if(overlooked.length){
+      patternSummary+=`<p><strong>Worth watching:</strong> ${overlooked.join(', ')} ${overlooked.length===1?'was':'were'} the FACTS concern${overlooked.length===1?'':'s'} you were most likely to overlook in this set.</p>`;
+    }else{
+      patternSummary+=`<p><strong>Worth noting:</strong> You did not consistently overlook any one FACTS category in this set.</p>`;
+    }
+  }
+
+  let closing;
+  if(aligned>=4 && (!totalPrimary || totalFound/totalPrimary>=0.75)){
+    closing="Your pattern shows a strong tendency to question confident AI output rather than simply accepting it. Keep using that same discipline when the stakes involve people, policy, authority, or institutional commitments.";
+  }else if(aligned>=3){
+    closing="You have a solid foundation. The next step is to make the FACTS questions habitual, especially when Copilot cites an authoritative-looking source or gives a very confident recommendation.";
+  }else{
+    closing="A useful next habit is to slow down before accepting consequential AI advice: separate facts from assumptions, confirm the governing source, and ask what decision still belongs to you.";
+  }
+
+  document.getElementById('performanceSummary').innerHTML=`
+    <div class="summarycard">
+      <h3>Your performance summary</h3>
+      <div class="summarysection">
+        <strong>Sign / Don't Sign judgment</strong>
+        ${decisionSummary}
+      </div>
+      <div class="summarysection">
+        <strong>FACTS reflection</strong>
+        ${factsSummary}
+        ${patternSummary}
+      </div>
+      <div class="summarynote">${closing}</div>
+    </div>`;
+}
+
+buildKey();
+render();
+</script>
+</body>
+</html>
