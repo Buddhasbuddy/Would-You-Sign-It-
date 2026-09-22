@@ -104,6 +104,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .intro-detail{text-align:left;margin-top:14px;padding:14px 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;line-height:1.5}
 .begin-btn{margin-top:24px;border:0;border-radius:14px;background:#2563eb;color:#fff;padding:14px 28px;font-size:1.08rem;font-weight:800;cursor:pointer}
 .begin-btn:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(0,0,0,.13)}
+.directions-row{display:flex;justify-content:flex-start;margin-bottom:16px}
+.directions-btn{border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#374151;padding:9px 13px;font-weight:700;cursor:pointer}
+.directions-btn:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(0,0,0,.1);background:#f8fafc}
 .intro-graphic-wrap{margin:0 0 18px;display:flex;justify-content:center}
 .intro-graphic{width:220px;max-width:100%;height:auto;display:block}
 @media(max-width:600px){.intro-card{padding:24px 20px}.intro-screen{min-height:auto;padding-top:8px}.intro-graphic{width:180px}}
@@ -149,6 +152,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 <div id="activityScreen" class="layout hidden">
 <main class="card main">
+  <div class="directions-row">
+    <button class="directions-btn" onclick="returnToDirections()">← Directions</button>
+  </div>
   <div id="game">
     <div class="progress"><span id="round"></span><span></span></div>
     <div class="bar"><span id="fill"></span></div>
@@ -252,10 +258,22 @@ let cases=selectFive();
 markSeen(cases);
 let current=0;
 let firstDecision=Array(cases.length).fill(null);
+let activityStarted=false;
 
 function beginActivity(){
+  activityStarted=true;
+  document.getElementById('beginBtn').textContent='Return to Activity';
   document.getElementById('introScreen').classList.add('hidden');
   document.getElementById('activityScreen').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function returnToDirections(){
+  if(activityStarted){
+    document.getElementById('beginBtn').textContent='Return to Activity';
+  }
+  document.getElementById('activityScreen').classList.add('hidden');
+  document.getElementById('introScreen').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
