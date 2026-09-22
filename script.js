@@ -19,37 +19,14 @@ function shuffle(array){
 
 function selectFive(){
   const available=scenarioBank.filter(c=>!seenScenarioIds.has(c.id));
-  if(available.length<5) return [];
 
-  const targetSignCount=Math.random()<0.5?2:3;
-
-  // Prefer a set that reflects the primary audience and a range of work.
-  for(let attempt=0;attempt<5000;attempt++){
-    const candidate=shuffle(available).slice(0,5);
-    const signCount=candidate.filter(c=>c.decision==="sign").length;
-    const managerCount=candidate.filter(c=>c.role==="Manager").length;
-    const chairCount=candidate.filter(c=>c.role==="Academic Chair").length;
-    const domainCount=new Set(candidate.map(c=>c.domain)).size;
-
-    if(signCount===targetSignCount && managerCount>=2 && chairCount>=2 && domainCount>=3){
-      return candidate;
-    }
+  if(available.length===0){
+    return [];
   }
 
-  // If the remaining pool cannot satisfy all preferred constraints,
-  // preserve a balanced Sign/Don't Sign mix and represent both primary roles where possible.
-  for(let attempt=0;attempt<5000;attempt++){
-    const candidate=shuffle(available).slice(0,5);
-    const signCount=candidate.filter(c=>c.decision==="sign").length;
-    const hasManager=candidate.some(c=>c.role==="Manager");
-    const hasChair=candidate.some(c=>c.role==="Academic Chair");
-    if(signCount===targetSignCount && hasManager && hasChair){
-      return candidate;
-    }
-  }
-
-  // Near the end of the session, use any five remaining unseen scenarios.
-  return shuffle(available).slice(0,5);
+  // Draw up to five scenarios at random from those not yet encountered
+  // in the current session. No scenario repeats until the pool is exhausted.
+  return shuffle(available).slice(0,Math.min(5,available.length));
 }
 
 function markSeen(selected){
@@ -169,7 +146,7 @@ function nextCase(){
 function restartActivity(){
   const nextCases=selectFive();
 
-  if(nextCases.length<5){
+  if(nextCases.length===0){
     updateRestartAvailability();
     return;
   }
@@ -192,10 +169,11 @@ function updateRestartAvailability(){
   const btn=document.getElementById('restartBtn');
   const status=document.getElementById('restartStatus');
 
-  if(remaining>=5){
+  if(remaining>0){
     btn.disabled=false;
-    btn.textContent='Restart';
-    status.textContent=`${remaining} unseen scenario${remaining===1?'':'s'} remain in this session.`;
+    btn.textContent='Continue Activity';
+    const nextCount=Math.min(5,remaining);
+    status.textContent=remaining+' unseen scenario'+(remaining===1?'':'s')+' remain. Continue for another random set of '+nextCount+'.';
   }else{
     btn.disabled=true;
     btn.textContent='All Scenarios Completed';
