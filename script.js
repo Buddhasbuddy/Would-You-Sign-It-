@@ -171,7 +171,7 @@ function updateRestartAvailability(){
 
   if(remaining>0){
     btn.disabled=false;
-    btn.textContent='Continue Activity';
+    btn.textContent='Try 5 more';
     const nextCount=Math.min(5,remaining);
     status.textContent=remaining+' unseen scenario'+(remaining===1?'':'s')+' remain. Continue for another random set of '+nextCount+'.';
   }else{
